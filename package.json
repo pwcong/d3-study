@@ -4,7 +4,9 @@
   "description": "Let's start enjoying D3.",
   "main": "./src/index.jsx",
   "scripts": {
-    "dev:1": "cross-env LESSON_NAME=1.ready webpack-dev-server --open",
+    "dev:1": "cross-env LESSON_NAME=1.hello-world webpack-dev-server --open",
+    "dev:2": "cross-env LESSON_NAME=2.update-enter-exit webpack-dev-server --open",
+    "dev:3": "cross-env LESSON_NAME=3.append-insert-delete webpack-dev-server --open",
     "build": "cross-env NODE_ENV=production webpack --progress",
     "lint": "eslint src --ext .ts,.tsx --fix"
   },
