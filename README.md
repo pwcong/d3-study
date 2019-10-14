@@ -1,2 +1,9 @@
-# d3-study
-学会D3造轮子
+# React TypeScript
+
+```shell
+# dev
+npm run dev
+
+# build
+npm run build
+```
