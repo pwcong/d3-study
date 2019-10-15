@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 import { buildItems } from '@/utils';
 
-import './app.scss';
+import './style.scss';
 
 export default class App extends React.PureComponent {
   ref: any;

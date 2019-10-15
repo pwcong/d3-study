@@ -1,6 +1,35 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import * as d3 from 'd3';
 
-import App from './app';
+import { buildItems } from '@/utils';
 
-ReactDOM.render(<App />, document.getElementById('app'));
+import './style.scss';
+
+export default class App extends React.PureComponent {
+  ref: any;
+
+  componentDidMount() {
+    // Update
+    const p = d3
+      .select(this.ref)
+      .selectAll('p')
+      .data([1, 2, 3, 4, 5])
+      .text(d => d);
+
+    // Enter
+    p.enter()
+      .append('p')
+      .text(d => d);
+
+    // Exit
+    p.exit().remove();
+  }
+
+  render() {
+    return (
+      <div className="container">
+        <div ref={ref => (this.ref = ref)}>{buildItems(8)}</div>
+      </div>
+    );
+  }
+}

@@ -1,6 +1,24 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import * as d3 from 'd3';
 
-import App from './app';
+import { buildItems } from '@/utils';
 
-ReactDOM.render(<App />, document.getElementById('app'));
+import './style.scss';
+
+export default class App extends React.PureComponent {
+  ref: any;
+
+  componentDidMount() {
+    d3.select(this.ref)
+      .selectAll('p')
+      .text((d, i) => `Hello World! ${i}`);
+  }
+
+  render() {
+    return (
+      <div className="container">
+        <div ref={ref => (this.ref = ref)}>{buildItems(8)}</div>
+      </div>
+    );
+  }
+}

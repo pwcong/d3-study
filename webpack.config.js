@@ -3,6 +3,7 @@ const webpack = require('webpack');
 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
+const VirtualModulesPlugin = require('webpack-virtual-modules');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const { NODE_ENV, LESSON_NAME } = process.env;
@@ -12,6 +13,15 @@ const isProd = NODE_ENV === 'production';
 const srcPath = path.resolve(__dirname, `src/${LESSON_NAME}`);
 const distPath = path.resolve(__dirname, 'dist');
 
+const getEntryCode = appPath => `
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from '${appPath}';
+
+ReactDOM.render(<App />,document.getElementById('app'));
+`;
+
+const entryPath = path.join(srcPath, 'entry.tsx');
 const commonCssLoaders = [
   isProd ? MiniCssExtractPlugin.loader : 'style-loader',
   'css-loader',
@@ -26,7 +36,7 @@ const commonCssLoaders = [
 module.exports = {
   mode: isProd ? 'production' : 'development',
   entry: {
-    index: `${srcPath}/index.tsx`,
+    index: entryPath,
     vendors: ['react', 'react-dom']
   },
   output: {
@@ -94,7 +104,17 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'css/[name].[hash].css',
       allChunks: true
-    }),
-    new webpack.HotModuleReplacementPlugin()
-  ]
+    })
+  ].concat(
+    isProd
+      ? []
+      : [
+          new webpack.HotModuleReplacementPlugin(),
+          new VirtualModulesPlugin({
+            [entryPath]: getEntryCode(
+              path.join(srcPath, 'index.tsx').replace(/\\/g, '/')
+            )
+          })
+        ]
+  )
 };
