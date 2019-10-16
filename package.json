@@ -10,6 +10,7 @@
     "dev:4": "cross-env LESSON_NAME=4.hello-chart webpack-dev-server --open",
     "dev:5": "cross-env LESSON_NAME=5.axis-chart webpack-dev-server --open",
     "dev:6": "cross-env LESSON_NAME=6.animation-chart webpack-dev-server --open",
+    "dev:7": "cross-env LESSON_NAME=7.event-chart webpack-dev-server --open",
     "build": "cross-env NODE_ENV=production webpack --progress",
     "lint": "eslint src --ext .ts,.tsx --fix"
   },
