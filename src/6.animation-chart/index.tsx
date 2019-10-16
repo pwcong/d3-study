@@ -54,23 +54,40 @@ export default class App extends React.PureComponent {
     // 绘制矩形
     gs.append('rect')
       .attr('x', (d, i) => (xScale(i) || 0) + rectPadding / 2)
-      .attr('y', d => yScale(d))
+      // .attr('y', d => yScale(d))
+      .attr('y', () => yScale(yScale.domain()[0]))
       .attr('width', () => xScale.step() - rectPadding)
+      // .attr(
+      //   'height',
+      //   d => height - this.margin.top - this.margin.bottom - yScale(d)
+      // )
+      .attr('height', 0)
+      .attr('value', d => d)
+      .attr('fill', 'blue')
+      .transition()
+      .duration(1000)
+      .delay((d, i) => i * 100)
+      .ease(d3.easeBackInOut)
+      .attr('y', d => yScale(d))
       .attr(
         'height',
         d => height - this.margin.top - this.margin.bottom - yScale(d)
-      )
-      .attr('value', d => d)
-      .attr('fill', 'blue');
+      );
 
     // 绘制文字
     gs.append('text')
       .attr('x', (d, i) => (xScale(i) || 0) + rectPadding / 2)
-      .attr('y', d => yScale(d))
+      // .attr('y', d => yScale(d))
+      .attr('y', () => yScale(yScale.domain()[0]))
       .attr('dx', () => xScale.step() / 2 - rectPadding)
       .attr('dy', 20)
       .text(d => d)
-      .attr('fill', 'white');
+      .attr('fill', 'white')
+      .transition()
+      .duration(1000)
+      .delay((d, i) => i * 100)
+      .ease(d3.easeBackInOut)
+      .attr('y', d => yScale(d));
 
     g.append('g')
       .attr(

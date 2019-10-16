@@ -8,6 +8,8 @@
     "dev:2": "cross-env LESSON_NAME=2.update-enter-exit webpack-dev-server --open",
     "dev:3": "cross-env LESSON_NAME=3.append-insert-delete webpack-dev-server --open",
     "dev:4": "cross-env LESSON_NAME=4.hello-chart webpack-dev-server --open",
+    "dev:5": "cross-env LESSON_NAME=5.axis-chart webpack-dev-server --open",
+    "dev:6": "cross-env LESSON_NAME=6.animation-chart webpack-dev-server --open",
     "build": "cross-env NODE_ENV=production webpack --progress",
     "lint": "eslint src --ext .ts,.tsx --fix"
   },
