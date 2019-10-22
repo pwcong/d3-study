@@ -1,4 +1,5 @@
 const path = require('path');
+const klaw = require('klaw-sync');
 const webpack = require('webpack');
 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
@@ -10,18 +11,95 @@ const { NODE_ENV, LESSON_NAME } = process.env;
 
 const isProd = NODE_ENV === 'production';
 
-const srcPath = path.resolve(__dirname, `src/${LESSON_NAME}`);
-const distPath = path.resolve(__dirname, 'dist');
+const distPath = path.resolve(__dirname, 'docs');
 
-const getEntryCode = appPath => `
+let entryPath = null;
+let virtualModules = null;
+
+if (isProd) {
+  const srcPath = path.resolve(__dirname, 'src');
+  entryPath = path.join(srcPath, 'entry.tsx');
+
+  const modules = klaw(srcPath, {
+    nofile: true,
+    depthLimit: 1
+  })
+    .map(d => path.relative(srcPath, d.path))
+    .filter(d => d.match(/^\d\..*$/))
+    .map(p => ({
+      path: path.join(srcPath, `${p}/index.tsx`).replace(/\\/g, '/'),
+      name: p
+    }));
+
+  const entryCode = `
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from '${appPath}';
+import { Route, NavLink, Redirect } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 
-ReactDOM.render(<App />,document.getElementById('app'));
+${modules.map((m, i) => `import App${i} from '${m.path}';`).join('\n')}
+
+ReactDOM.render(
+  <Router>
+    <div className="container" style={{
+      padding: '8px'
+    }}>
+      <div className="navs" style={{
+        textAlign: 'center'
+      }}>
+      ${modules
+        .map(
+          m => `
+        <NavLink exact={true} to="/${m.name}" style={{
+          padding: '4px 8px',
+          whiteSpace: 'nowrap'
+        }}>
+          ${m.name}
+        </NavLink>
+      `
+        )
+        .join('\n')}
+      </div>
+      <div className="apps" style={{
+        border: '1px solid #eee',
+        marginTop: '16px',
+      }}>
+        <Redirect exact={true} from="/" to="/${modules[0].name}" />
+      ${modules
+        .map(
+          (m, i) => `
+        <Route exact={true} path="/${m.name}" component={App${i}} />
+      `
+        )
+        .join('\n')}
+      </div>
+    </div>
+  </Router>,
+  document.getElementById('app')
+);
 `;
 
-const entryPath = path.join(srcPath, 'entry.tsx');
+  virtualModules = new VirtualModulesPlugin({
+    [entryPath]: entryCode
+  });
+} else {
+  const srcPath = path.resolve(__dirname, `src/${LESSON_NAME}`);
+
+  entryPath = path.join(srcPath, 'entry.tsx');
+
+  const entryCode = `
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from '${path.join(srcPath, 'index.tsx').replace(/\\/g, '/')}';
+
+ReactDOM.render(<App />, document.getElementById('app'));
+`;
+
+  virtualModules = new VirtualModulesPlugin({
+    [entryPath]: entryCode
+  });
+}
+
 const commonCssLoaders = [
   isProd ? MiniCssExtractPlugin.loader : 'style-loader',
   'css-loader',
@@ -104,17 +182,7 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'css/[name].[hash].css',
       allChunks: true
-    })
-  ].concat(
-    isProd
-      ? []
-      : [
-          new webpack.HotModuleReplacementPlugin(),
-          new VirtualModulesPlugin({
-            [entryPath]: getEntryCode(
-              path.join(srcPath, 'index.tsx').replace(/\\/g, '/')
-            )
-          })
-        ]
-  )
+    }),
+    virtualModules
+  ].concat(isProd ? [] : [new webpack.HotModuleReplacementPlugin()])
 };
